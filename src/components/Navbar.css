@@ -1,0 +1,335 @@
+/* Navbar.css - Transparent to Solid Background for TARA FURNITURE HOUSE */
+
+/* Navbar Base Styles - Transparent by default */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background-color: transparent;
+  transition: all 0.4s ease-in-out;
+  z-index: 1000;
+}
+
+/* When scrolled - add background color */
+.navbar.scrolled {
+  background-color: #2c2418;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(0);
+}
+
+/* Optional: Add backdrop blur for modern look when scrolled */
+.navbar.scrolled {
+  background-color: rgba(44, 36, 24, 0.98);
+}
+
+.nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  transition: all 0.3s ease;
+}
+
+/* Shrink padding when scrolled */
+.navbar.scrolled .nav-container {
+  padding: 0.8rem 3rem;
+}
+
+/* Logo Styles */
+.logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-decoration: none;
+  letter-spacing: 2px;
+  transition: all 0.3s ease;
+  position: relative;
+  font-family: 'Montserrat', 'Segoe UI', sans-serif;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Reduce text shadow when scrolled */
+.navbar.scrolled .logo {
+  text-shadow: none;
+}
+
+.logo::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #b87b4a;
+  transition: width 0.3s ease;
+}
+
+.logo:hover {
+  color: #b87b4a;
+}
+
+.logo:hover::after {
+  width: 100%;
+}
+
+/* Navigation Links Container */
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+}
+
+/* Individual Navigation Items */
+.nav-links li {
+  position: relative;
+}
+
+/* Navigation Links */
+.nav-links a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  padding: 0.5rem 0;
+  display: inline-block;
+  position: relative;
+  font-family: 'Montserrat', 'Segoe UI', sans-serif;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Remove text shadow when scrolled */
+.navbar.scrolled .nav-links a {
+  text-shadow: none;
+}
+
+/* Underline Animation */
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: #b87b4a;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+/* Hover Effects */
+.nav-links a:hover {
+  color: #b87b4a;
+}
+
+.nav-links a:hover::after {
+  width: 80%;
+}
+
+/* Active Link Styling */
+.nav-links a.active {
+  color: #b87b4a;
+}
+
+.nav-links a.active::after {
+  width: 80%;
+}
+
+/* Mobile Menu Button */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  gap: 6px;
+  z-index: 1001;
+}
+
+.menu-toggle span {
+  width: 25px;
+  height: 2px;
+  background-color: #ffffff;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+/* When scrolled, menu button remains visible */
+.navbar.scrolled .menu-toggle span {
+  background-color: #ffffff;
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+  .nav-container {
+    padding: 1.2rem 2rem;
+  }
+  
+  .navbar.scrolled .nav-container {
+    padding: 0.8rem 2rem;
+  }
+  
+  .logo {
+    font-size: 1.2rem;
+  }
+  
+  .nav-links {
+    gap: 1.5rem;
+  }
+  
+  .nav-links a {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Show mobile menu button */
+  .menu-toggle {
+    display: flex;
+  }
+  
+  /* Hide nav links initially on mobile */
+  .nav-links {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 1rem;
+    background-color: #2c2418;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    padding: 1rem 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    animation: slideDown 0.3s ease;
+  }
+  
+  /* Show nav links when mobile menu is open */
+  .nav-links.mobile-open {
+    display: flex;
+  }
+  
+  /* On mobile, ensure background is solid when menu is open */
+  .navbar .nav-links.mobile-open {
+    background-color: #2c2418;
+  }
+  
+  .nav-links li {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .nav-links a {
+    display: block;
+    padding: 0.8rem 0;
+    width: 100%;
+    text-shadow: none;
+  }
+  
+  .nav-links a::after {
+    display: none;
+  }
+  
+  .nav-links a:hover {
+    background-color: rgba(184, 123, 74, 0.1);
+  }
+  
+  /* Animated hamburger menu (when open) */
+  .menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  
+  .menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+  }
+  
+  .menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+  }
+  
+  .nav-container {
+    padding: 1rem 1.5rem;
+  }
+  
+  .navbar.scrolled .nav-container {
+    padding: 0.8rem 1.5rem;
+  }
+  
+  /* When mobile menu is open on scrolled navbar */
+  .navbar.scrolled .nav-links.mobile-open {
+    background-color: #2c2418;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Small screens */
+@media (max-width: 480px) {
+  .nav-container {
+    padding: 1rem;
+  }
+  
+  .navbar.scrolled .nav-container {
+    padding: 0.7rem 1rem;
+  }
+  
+  .logo {
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+  }
+}
+
+/* Animation for mobile menu */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Optional: Add a subtle blur effect to transparent navbar */
+.navbar:not(.scrolled) {
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Remove blur on scroll for better readability */
+.navbar.scrolled {
+  backdrop-filter: blur(0);
+  background-color: #2c2418;
+}
+
+/* Print styles */
+@media print {
+  .navbar {
+    position: static;
+    background-color: #fff;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  
+  .nav-links {
+    display: none !important;
+  }
+  
+  .menu-toggle {
+    display: none !important;
+  }
+  
+  .logo {
+    color: #000;
+    text-shadow: none;
+  }
+}
