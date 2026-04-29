@@ -11,6 +11,7 @@ function Products() {
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('default');
   const [categories, setCategories] = useState([{ value: 'all', label: 'All Categories', icon: '🪑' }]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const getCategoryDisplayName = useCallback((categoryValue) => {
     const displayNames = {
@@ -51,29 +52,20 @@ function Products() {
     setLoading(true);
     try {
       const data = await getProducts();
-      console.log('Raw API response:', data);
-      
-      // Set all products
       const validProducts = data.filter(product => product && product.id);
       setProducts(validProducts);
       
-      // Extract unique categories from products
       const uniqueCategories = [...new Set(validProducts.map(product => product.category))];
-      
-      // Create category objects with icons and labels
       const dynamicCategories = uniqueCategories.map(cat => ({
         value: cat,
         label: getCategoryDisplayName(cat),
         icon: getCategoryIcon(cat)
       }));
       
-      // Add "All Categories" at the beginning
       setCategories([
         { value: 'all', label: 'All Categories', icon: '🪑' },
         ...dynamicCategories
       ]);
-      
-      console.log('Dynamic categories:', dynamicCategories);
     } catch (error) {
       console.error('Error loading products:', error);
     } finally {
@@ -89,7 +81,6 @@ function Products() {
       return matchesCategory && matchesSearch;
     });
 
-    // Apply sorting
     switch(sortBy) {
       case 'price-low':
         filtered.sort((a, b) => a.price - b.price);
@@ -101,7 +92,6 @@ function Products() {
         filtered.sort((a, b) => a.name.localeCompare(b.name));
         break;
       default:
-        // Keep original order (by id)
         filtered.sort((a, b) => (a.id || 0) - (b.id || 0));
     }
 
@@ -116,34 +106,29 @@ function Products() {
     filterAndSortProducts();
   }, [filterAndSortProducts]);
 
+  // Reset image index when selected product changes
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [selectedProduct]);
+
   const getCategoryName = useCallback((category) => {
     return getCategoryDisplayName(category);
   }, [getCategoryDisplayName]);
 
-  // Add to cart function
-  const handleAddToCart = (product, e) => {
+
+  // Image slider functions
+  const nextImage = (e) => {
     e.stopPropagation();
-    // Get existing cart from localStorage
-    const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
-    
-    // Check if product already in cart
-    const existingItem = existingCart.find(item => item.id === product.id);
-    
-    if (existingItem) {
-      existingItem.quantity = (existingItem.quantity || 1) + 1;
-    } else {
-      existingCart.push({ ...product, quantity: 1 });
+    if (selectedProduct && selectedProduct.images && selectedProduct.images.length > 0) {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % selectedProduct.images.length);
     }
-    
-    localStorage.setItem('cart', JSON.stringify(existingCart));
-    alert(`${product.name} added to cart!`);
   };
 
-  // Book consultation function
-  const handleBookConsultation = (product, e) => {
+  const prevImage = (e) => {
     e.stopPropagation();
-    // You can redirect to appointment page or open a modal
-    window.location.href = '/appointment';
+    if (selectedProduct && selectedProduct.images && selectedProduct.images.length > 0) {
+      setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedProduct.images.length) % selectedProduct.images.length);
+    }
   };
 
   return (
@@ -156,7 +141,6 @@ function Products() {
       </section>
 
       <div className="products-container">
-        {/* Filters Section */}
         <div className="filters-section">
           <div className="filter-group">
             <label>Category:</label>
@@ -199,12 +183,10 @@ function Products() {
           </div>
         </div>
 
-        {/* Results Count */}
         <div className="results-count">
           Showing {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
         </div>
 
-        {/* Loading State */}
         {loading ? (
           <div className="loading-container">
             <div className="spinner"></div>
@@ -212,7 +194,6 @@ function Products() {
           </div>
         ) : (
           <>
-            {/* Products Grid */}
             {filteredProducts.length === 0 ? (
               <div className="no-products">
                 <div className="no-products-icon">🪑</div>
@@ -281,7 +262,7 @@ function Products() {
         )}
       </div>
 
-      {/* Product Modal for detailed view */}
+      {/* Product Modal with Image Slider */}
       {selectedProduct && (
         <div className="modal-overlay" onClick={() => setSelectedProduct(null)}>
           <div className="modal-content product-detail-modal" onClick={(e) => e.stopPropagation()}>
@@ -289,10 +270,45 @@ function Products() {
             
             <div className="product-detail-gallery">
               {selectedProduct.images && selectedProduct.images.length > 0 ? (
-                <div className="gallery-grid">
-                  {selectedProduct.images.map((img, idx) => (
-                    <img key={idx} src={img} alt={`${selectedProduct.name} ${idx + 1}`} />
-                  ))}
+                <div className="image-slider-container">
+                  <div className="main-slider-image">
+                    <img 
+                      src={selectedProduct.images[currentImageIndex]} 
+                      alt={`${selectedProduct.name} - ${currentImageIndex + 1}`}
+                    />
+                    {selectedProduct.images.length > 1 && (
+                      <>
+                        <button className="slider-nav prev-nav" onClick={prevImage}>❮</button>
+                        <button className="slider-nav next-nav" onClick={nextImage}>❯</button>
+                      </>
+                    )}
+                  </div>
+                  <div className="slider-dots">
+                    {selectedProduct.images.map((_, idx) => (
+                      <button
+                        key={idx}
+                        className={`slider-dot ${currentImageIndex === idx ? 'active' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentImageIndex(idx);
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <div className="thumbnail-strip">
+                    {selectedProduct.images.map((img, idx) => (
+                      <div
+                        key={idx}
+                        className={`thumbnail ${currentImageIndex === idx ? 'active' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentImageIndex(idx);
+                        }}
+                      >
+                        <img src={img} alt={`Thumbnail ${idx + 1}`} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className="gallery-placeholder">
@@ -313,20 +329,6 @@ function Products() {
                 <span>✓ Installation Included</span>
               </div>
               <p className="full-description">{selectedProduct.description}</p>
-              <div className="modal-actions">
-                <button 
-                  className="btn-primary" 
-                  onClick={(e) => handleAddToCart(selectedProduct, e)}
-                >
-                  Add to Cart
-                </button>
-                <button 
-                  className="btn-secondary" 
-                  onClick={(e) => handleBookConsultation(selectedProduct, e)}
-                >
-                  Book Consultation
-                </button>
-              </div>
             </div>
           </div>
         </div>

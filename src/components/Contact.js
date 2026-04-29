@@ -56,23 +56,23 @@ function Contact() {
             <div className="info-card">
               <div className="info-icon">📍</div>
               <h3>Visit Our Showroom</h3>
-              <p>#45, Furniture Street,<br />Ashok Nagar, Bengaluru - 560001<br />Karnataka, India</p>
+              <p>TARA FURNITURE HOUSE<br />
+              MALL ROAD GONIANA MANDI<br />
+              BATHINDA, Punjab - India</p>
+              <small>Near Post Office, Main Market</small>
             </div>
             <div className="info-card">
               <div className="info-icon">📞</div>
               <h3>Call Us</h3>
-              <p>+91 98765 43210<br />+91 80 1234 5678</p>
+              <p><strong>+91 94171-02633</strong><br />
+              <strong>+91 81949-10933</strong></p>
               <small>Mon-Sat, 10 AM - 8 PM</small>
-            </div>
-            <div className="info-card">
-              <div className="info-icon">✉️</div>
-              <h3>Email Us</h3>
-              <p>info@tarafurniture.com<br/>sales@tarafurniture.com</p>
             </div>
             <div className="info-card">
               <div className="info-icon">🕒</div>
               <h3>Showroom Hours</h3>
-              <p>Monday - Saturday: 10:00 AM - 8:00 PM<br />Sunday: 11:00 AM - 5:00 PM</p>
+              <p><strong>Monday - Saturday:</strong><br />10:00 AM - 8:00 PM<br />
+              <strong>Sunday:</strong><br />11:00 AM - 5:00 PM</p>
             </div>
           </div>
         </div>
@@ -83,7 +83,7 @@ function Contact() {
           <div className="contact-form-container">
             <div className="form-info">
               <h2>Book a Furniture Consultation</h2>
-              <p>Schedule a free consultation with our furniture experts. We'll help you find the perfect pieces for your space.</p>
+              <p>Schedule a free consultation with our furniture experts at TARA FURNITURE HOUSE, Goniana Mandi. We'll help you find the perfect pieces for your space.</p>
               <div className="benefits-list">
                 <h4>Why book with us:</h4>
                 <ul>
@@ -91,7 +91,8 @@ function Contact() {
                   <li>✓ Custom furniture measurements</li>
                   <li>✓ Exclusive showroom preview</li>
                   <li>✓ 10% discount on first purchase</li>
-                  <li>✓ Free delivery & installation</li>
+                  <li>✓ Free delivery & installation in Bathinda region</li>
+                  <li>✓ 5-year warranty on all products</li>
                 </ul>
               </div>
             </div>
@@ -99,7 +100,7 @@ function Contact() {
             <div className="form-wrapper">
               {submitted && (
                 <div className="success-message">
-                  ✓ Consultation booked successfully! We'll contact you within 24 hours.
+                  ✓ Consultation booked successfully! We'll contact you within 24 hours at +91 94171-02633 or +91 81949-10933.
                 </div>
               )}
               
@@ -180,7 +181,7 @@ function Contact() {
                     value={formData.message}
                     onChange={handleChange}
                     rows="4"
-                    placeholder="Tell us about the furniture you're interested in (sofa, dining table, bedroom set, office furniture, etc.)"
+                    placeholder="Tell us about the furniture you're interested in (sofa, dining table, bedroom set, office furniture, storage solutions, etc.)"
                   />
                 </div>
 
@@ -198,8 +199,8 @@ function Contact() {
           <h2>Visit Our Showroom</h2>
           <div className="map-container">
             <iframe
-              title="TARA FURNITURE HOUSE Location"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15551.915181812374!2d77.5945!3d12.9716!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1670c9b44e6d%3A0xf8dfc3e1417e67a0!2sBengaluru%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+              title="Panasonic Exclusive Store Tara Furniture House - Goniana Mandi, Bathinda"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3444.201221584818!2d74.9143875755642!3d30.31679377478762!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39173575ad254d43%3A0x3b7b32c843f6db95!2sPanasonic%20Exclusive%20Store%20Tara%20Furniture%20House!5e0!3m2!1sen!2sin!4v1777471019384!5m2!1sen!2sin"
               width="100%"
               height="450"
               style={{ border: 0 }}
@@ -210,16 +211,17 @@ function Contact() {
           </div>
           <div className="map-directions">
             <a 
-              href="https://maps.google.com/?q=TARA+FURNITURE+HOUSE+Bengaluru" 
+              href="https://maps.google.com/?q=Panasonic+Exclusive+Store+Tara+Furniture+House+Goniana+Mandi+Bathinda" 
               target="_blank" 
               rel="noopener noreferrer"
               className="directions-btn"
             >
-              Get Directions →
+              Get Directions to Our Showroom →
             </a>
           </div>
         </div>
       </section>
+
     </div>
   );
 }

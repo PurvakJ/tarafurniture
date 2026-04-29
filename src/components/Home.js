@@ -1,13 +1,12 @@
 // pages/Home.js
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { getProducts, getReviews, addReview } from '../api';
 import './Home.css';
 
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [randomProducts, setRandomProducts] = useState([]);
-  const [, setFeaturedProducts] = useState([]);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
@@ -17,9 +16,8 @@ const Home = () => {
     rating: 5,
     comment: ''
   });
-  const navigate = useNavigate();
 
-  // Carousel images for FURNITURE ONLY
+  // Carousel images
   const carouselImages = [
     {
       url: "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1600",
@@ -39,43 +37,39 @@ const Home = () => {
     {
       url: "https://images.pexels.com/photos/1248583/pexels-photo-1248583.jpeg?auto=compress&cs=tinysrgb&w=1600",
       title: "TARA FURNITURE HOUSE",
-      subtitle: "Crafting Dreams Since 1995"
+      subtitle: "Crafting Dreams Since 2010"
     }
   ];
 
-  // Gallery items data - ALL FURNITURE
+  // Gallery items data - Static display only
   const galleryItems = [
     {
       id: 2,
       image: "https://m.media-amazon.com/images/I/813Ido2u92L._AC_UF894,1000_QL80_.jpg",
       title: "SOFA SETS",
-      description: "Luxury fabric & leather sofas | Custom designs available",
-      category: "furniture"
+      description: "Luxury fabric & leather sofas | Custom designs available"
     },
     {
       id: 3,
       image: "https://allianceinternationalstore.com/wp-content/uploads/2023/01/Hf864b58482284b4883350aebca153e332.jpg",
       title: "DINING TABLES",
-      description: "Solid wood & modern glass top | Seats 4 to 10 people",
-      category: "furniture"
+      description: "Solid wood & modern glass top | Seats 4 to 10 people"
     },
     {
       id: 4,
       image: "https://themapletree.in/cdn/shop/files/image_aeef02ca-c011-479a-ae27-b396185f868c_1.jpg?v=1692438362",
       title: "BEDROOM SETS",
-      description: "Complete bedroom solutions with storage beds",
-      category: "furniture"
+      description: "Complete bedroom solutions with storage beds"
     },
     {
       id: 6,
       image: "https://img.staticmb.com/mbimages/interiorDesignerCMS/decorPartner/1603/projectImage/Kitchen-design-ideas-by-arch-designo-Interior-designer-mumbai.jpg.webp",
       title: "KITCHEN CABINETS",
-      description: "Modular & traditional kitchen storage",
-      category: "furniture"
+      description: "Modular & traditional kitchen storage"
     }
   ];
 
-  // Services data - Furniture specific
+  // Services data
   const servicesData = [
     { title: "CUSTOM FURNITURE", description: "Tailor-made designs for your unique space" },
     { title: "RESTORATION", description: "Revive your antique furniture pieces" },
@@ -91,7 +85,6 @@ const Home = () => {
     { icon: "🛡️", title: "5 Year Warranty", description: "Complete peace of mind on all products" }
   ];
 
-
   // Handcrafted features
   const handcraftedFeatures = [
     "PREMIUM QUALITY",
@@ -102,40 +95,35 @@ const Home = () => {
     "5 YEAR WARRANTY"
   ];
 
-  // Function to handle gallery item click
-  const handleGalleryItemClick = (item) => {
-    navigate('/products', { 
-      state: { 
-        filterCategory: item.category,
-        filterSource: 'gallery',
-        filterTitle: item.title
-      } 
-    });
+  // Function to get top 3 reviews
+  const getTopReviews = (allReviews) => {
+    const featured = allReviews.filter(review => review.featured === true);
+    const nonFeatured = allReviews.filter(review => review.featured !== true);
+    featured.sort((a, b) => b.rating - a.rating);
+    nonFeatured.sort((a, b) => b.rating - a.rating);
+    const sortedReviews = [...featured, ...nonFeatured];
+    return sortedReviews.slice(0, 3);
   };
 
   // Load products and reviews
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const products = await getProducts();
-      // Randomize products for featured section
-      const shuffled = [...products];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
-      setRandomProducts(shuffled.slice(0, 3));
-      setFeaturedProducts(products.filter(p => p.featured).slice(0, 4));
+      // Get featured products (up to 4)
+      const featured = products.filter(p => p.featured === true).slice(0, 3);
+      setFeaturedProducts(featured);
       
       const allReviews = await getReviews();
-      setReviews(allReviews.slice(0, 6));
+      const topThreeReviews = getTopReviews(allReviews);
+      setReviews(topThreeReviews);
     } catch (error) {
       console.error('Error loading data:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Handle review submission
   const handleReviewSubmit = async (e) => {
@@ -177,6 +165,30 @@ const Home = () => {
 
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length);
+  };
+
+  const getCategoryIcon = (category) => {
+    const icons = {
+      'living-room': '🛋️',
+      'bedroom': '🛏️',
+      'dining': '🍽️',
+      'office': '💼',
+      'storage': '📦',
+      'decor': '🎨'
+    };
+    return icons[category] || '🪑';
+  };
+
+  const getCategoryName = (category) => {
+    const names = {
+      'living-room': 'Living Room',
+      'bedroom': 'Bedroom',
+      'dining': 'Dining',
+      'office': 'Office',
+      'storage': 'Storage',
+      'decor': 'Decor'
+    };
+    return names[category] || category;
   };
 
   return (
@@ -227,7 +239,7 @@ const Home = () => {
           <p>Discover our handcrafted premium furniture pieces</p>
         </div>
         <div className="products-grid">
-          {randomProducts.map(product => (
+          {featuredProducts.map(product => (
             <div key={product.id} className="product-card">
               <div className="product-image">
                 {product.images && product.images[0] && (
@@ -235,15 +247,31 @@ const Home = () => {
                 )}
               </div>
               <div className="product-info">
-                <span className="product-category">{product.category}</span>
+                <span className="product-category">
+                  {getCategoryIcon(product.category)} {getCategoryName(product.category)}
+                </span>
                 <h3 className="product-name">{product.name}</h3>
-                <p className="product-description">{product.description.substring(0, 80)}...</p>
-                <div className="product-details">
-                  <span className="product-price">₹{product.price.toLocaleString()}</span>
+                <div className="product-price">₹{product.price.toLocaleString()}</div>
+                <p className="product-description">
+                  {product.description && product.description.length > 100 
+                    ? `${product.description.substring(0, 100)}...` 
+                    : product.description}
+                </p>
+                <div className="product-features">
+                  <span>✓ Free Delivery</span>
+                  <span>✓ 5 Year Warranty</span>
                 </div>
+                <Link to="/products" className="btn-view-product">
+                  View Details →
+                </Link>
               </div>
             </div>
           ))}
+        </div>
+        <div className="view-all-container">
+          <Link to="/products" className="btn-view-all">
+            View All Products →
+          </Link>
         </div>
       </section>
 
@@ -259,7 +287,7 @@ const Home = () => {
             <span className="stat-label">FURNITURE PIECES SOLD</span>
           </div>
           <div className="stat">
-            <span className="stat-number">28+</span>
+            <span className="stat-number">16+</span>
             <span className="stat-label">YEARS OF EXCELLENCE</span>
           </div>
         </div>
@@ -273,14 +301,6 @@ const Home = () => {
               key={item.id} 
               className="gallery-item"
               style={{ backgroundImage: `url(${item.image})` }}
-              onClick={() => handleGalleryItemClick(item)}
-              role="button"
-              tabIndex={0}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  handleGalleryItemClick(item);
-                }
-              }}
             >
               <div className="gallery-label">
                 <h3>{item.title}</h3>
@@ -343,7 +363,6 @@ const Home = () => {
         <h2>CUSTOMER REVIEWS</h2>
         <p className="subtitle">What our customers say about Tara Furniture House</p>
         
-        {/* Review Form */}
         <div className="review-form-wrapper">
           {!showReviewForm ? (
             <button className="btn-write-review" onClick={() => setShowReviewForm(true)}>
@@ -403,17 +422,32 @@ const Home = () => {
         )}
 
         <div className="sustainable-grid">
-          {reviews.map((review) => (
-            <div key={review.id} className="sustainable-card">
-              <div className="review-header">
-                <h3>{review.name}</h3>
-                <div className="rating-stars">
-                  {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+          {reviews.length > 0 ? (
+            reviews.map((review) => (
+              <div key={review.id} className="sustainable-card">
+                <div className="review-header">
+                  <h3>{review.name}</h3>
+                  <div className="rating-stars">
+                    {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                  </div>
                 </div>
+                <p>{review.comment}</p>
+                {review.featured && (
+                  <div className="featured-badge">⭐ Featured Review</div>
+                )}
               </div>
-              <p>{review.comment}</p>
+            ))
+          ) : (
+            <div className="no-reviews">
+              <p>No reviews yet. Be the first to share your experience!</p>
             </div>
-          ))}
+          )}
+        </div>
+        
+        <div className="view-all-reviews">
+          <Link to="/reviews" className="btn-view-all">
+            View All Reviews →
+          </Link>
         </div>
       </section>
 

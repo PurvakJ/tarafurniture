@@ -893,6 +893,7 @@
     position: relative;
     z-index: 1;
     max-width: 1200px;
+    height: 300px;
     margin: 0 auto;
   }
   
@@ -901,6 +902,10 @@
     margin-bottom: 2rem;
     font-weight: 500;
     letter-spacing: 2px;
+    margin-top: 150px;
+    justify-content: center;   /* horizontal center */
+    align-items: center;       /* full viewport height */
+    text-align: center;
   }
   
   .handcrafted-features {
@@ -1269,3 +1274,148 @@
       font-size: 22px;
     }
   }
+
+  /* Add to Home.css */
+
+/* Featured Review Badge */
+.featured-badge {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #333;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 0px #ffd700; }
+  50% { box-shadow: 0 0 10px #ffd700; }
+  100% { box-shadow: 0 0 0px #ffd700; }
+}
+
+/* View All Reviews Button */
+.view-all-reviews {
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.btn-view-all {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  background: transparent;
+  color: #2c3e50;
+  border: 2px solid #b87b4a;
+  border-radius: 40px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btn-view-all:hover {
+  background: #b87b4a;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 123, 74, 0.3);
+}
+
+/* No Reviews State */
+.no-reviews {
+  text-align: center;
+  padding: 3rem;
+  background: #f9f9f9;
+  border-radius: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Ensure sustainable grid shows only 3 reviews */
+.sustainable-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* Responsive design for reviews */
+@media (max-width: 768px) {
+  .sustainable-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .btn-view-all {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sustainable-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Product Features */
+.product-features {
+  display: flex;
+  gap: 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.75rem;
+  color: #4caf50;
+}
+
+.product-features span {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.btn-view-product {
+  display: inline-block;
+  background: #b87b4a;
+  color: white;
+  text-decoration: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  text-align: center;
+}
+
+.btn-view-product:hover {
+  background: #9a5f33;
+  transform: translateX(5px);
+}
+
+.view-all-container {
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.btn-view-all {
+  display: inline-block;
+  background: transparent;
+  color: #b87b4a;
+  text-decoration: none;
+  padding: 0.75rem 2rem;
+  border: 2px solid #b87b4a;
+  border-radius: 40px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-view-all:hover {
+  background: #b87b4a;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 123, 74, 0.3);
+}
+

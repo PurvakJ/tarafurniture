@@ -5,6 +5,14 @@ import './Footer.css';
 function Footer() {
   const currentYear = new Date().getFullYear();
 
+  // Social media URLs
+  const socialLinks = {
+    instagram: 'https://www.instagram.com/tara_furniture_house/',
+    facebook: 'https://www.facebook.com/p/TARA-Furniture-House-100069105852735/',
+    indiamart: 'https://www.indiamart.com/tara-furnitures-house/?srsltid=AfmBOorKyco8kYOlhtcn2p7u1nQGPT4xGzz7DQHPpPqjcKuPdKKj_F-s',
+    justdial: 'https://www.justdial.com/Goniana/Tara-Furniture-House-Near-Post-Office-Goniana-Mandi-Distt-Bathinda-Gonina-Mandi/9999PX164-X164-210718215534-L5Q8_BZDET'
+  };
+
   return (
     <footer className="footer">
       <div className="footer-container">
@@ -12,17 +20,56 @@ function Footer() {
           <h3>TARA FURNITURE HOUSE</h3>
           <p>Creating timeless furniture pieces that transform houses into homes since 1995.</p>
           <div className="social-links">
-            <a href="https://facebook.com/tarafurniture" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-              <span>📘</span> Facebook
+            <a 
+              href={socialLinks.facebook} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              aria-label="Facebook"
+              className="social-link facebook"
+            >
+              <svg className="social-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+              <span>Facebook</span>
             </a>
-            <a href="https://instagram.com/tarafurniture" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-              <span>📸</span> Instagram
+            
+            <a 
+              href={socialLinks.instagram} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              aria-label="Instagram"
+              className="social-link instagram"
+            >
+              <svg className="social-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM12 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+              </svg>
+              <span>Instagram</span>
             </a>
-            <a href="https://pinterest.com/tarafurniture" target="_blank" rel="noopener noreferrer" aria-label="Pinterest">
-              <span>📌</span> Pinterest
+            
+            <a 
+              href={socialLinks.indiamart} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              aria-label="IndiaMart"
+              className="social-link indiamart"
+            >
+              <svg className="social-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+              </svg>
+              <span>IndiaMart</span>
             </a>
-            <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
-              <span>💬</span> WhatsApp
+            
+            <a 
+              href={socialLinks.justdial} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              aria-label="Justdial"
+              className="social-link justdial"
+            >
+              <svg className="social-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-1 14H5c-.55 0-1-.45-1-1V7c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v10c0 .55-.45 1-1 1z"/>
+              </svg>
+              <span>Justdial</span>
             </a>
           </div>
         </div>
@@ -56,15 +103,11 @@ function Footer() {
           <ul className="contact-info">
             <li>
               <span className="contact-icon">📍</span>
-              <span>#45, Furniture Street, Ashok Nagar,<br />Bengaluru - 560001, Karnataka, India</span>
+              <span>TARA FURNITURE HOUSE, MALL ROAD GONIANA MANDI, BATHINDA</span>
             </li>
             <li>
               <span className="contact-icon">📞</span>
-              <span>+91 98765 43210 | +91 80 1234 5678</span>
-            </li>
-            <li>
-              <span className="contact-icon">✉️</span>
-              <span>info@tarafurniture.com</span>
+              <span>+91 94171-02633 | +91 81949-10933</span>
             </li>
             <li>
               <span className="contact-icon">🕒</span>
@@ -77,12 +120,7 @@ function Footer() {
       <div className="footer-bottom">
         <div className="footer-bottom-content">
           <p>&copy; {currentYear} TARA FURNITURE HOUSE. All rights reserved.</p>
-          <p className="footer-tagline">Crafting Dreams, Building Trust Since 1995</p>
-        </div>
-        <div className="footer-payment">
-          <span>Secure Payments:</span>
-          <span>💳</span>
-          <span>🔒</span>
+          <p className="footer-tagline">Crafting Dreams, Building Trust Since 2010</p>
         </div>
       </div>
     </footer>

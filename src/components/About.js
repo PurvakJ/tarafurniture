@@ -16,8 +16,8 @@ function About() {
         <div className="container">
           <div className="story-content">
             <h2>Our Story</h2>
-            <p>TARA FURNITURE HOUSE was founded in 1995 with a simple yet powerful vision: to bring beautifully crafted, high-quality furniture to homes and businesses across India. What began as a small workshop in the heart of the city has grown into a trusted destination for customers seeking timeless designs, superior craftsmanship, and exceptional value.</p>
-            <p>For over 28 years, we have been dedicated to creating furniture that combines traditional artistry with modern functionality. Every piece that leaves our workshop is a testament to our commitment to quality, durability, and aesthetic excellence.</p>
+            <p>TARA FURNITURE HOUSE was founded in 2010 with a simple yet powerful vision: to bring beautifully crafted, high-quality furniture to homes and businesses across India. What began as a small workshop in the heart of the city has grown into a trusted destination for customers seeking timeless designs, superior craftsmanship, and exceptional value.</p>
+            <p>For over years, we have been dedicated to creating furniture that combines traditional artistry with modern functionality. Every piece that leaves our workshop is a testament to our commitment to quality, durability, and aesthetic excellence.</p>
             <p>Today, TARA FURNITURE HOUSE stands as a symbol of trust, serving thousands of happy customers who have made us their preferred choice for home and office furniture.</p>
           </div>
           <div className="story-image"></div>
@@ -89,7 +89,7 @@ function About() {
         <div className="container">
           <div className="stats-grid">
             <div className="stat-item">
-              <div className="stat-number">28+</div>
+              <div className="stat-number">16+</div>
               <div className="stat-label">Years of Excellence</div>
             </div>
             <div className="stat-item">
