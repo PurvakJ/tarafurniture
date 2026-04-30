@@ -337,12 +337,6 @@ function Admin() {
             {loginError && <div className="login-error">{loginError}</div>}
             <button type="submit" className="login-btn">Login to Dashboard</button>
           </form>
-          <div className="login-footer">
-            <p>Secure Admin Access Only</p>
-            <p style={{ fontSize: '0.7rem', marginTop: '0.5rem', color: '#b87b4a' }}>
-              Demo Credentials: admin / Tara@2024
-            </p>
-          </div>
         </div>
       </div>
     );
