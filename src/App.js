@@ -27,29 +27,119 @@ function ScrollToTop() {
 
 // Loading Screen Component
 function LoadingScreen({ onLoad }) {
-  const [fadeOut, setFadeOut] = useState(false);
+  const [animationState, setAnimationState] = useState('initial');
+  const [showText, setShowText] = useState(false);
+  const [showTagline, setShowTagline] = useState(false);
+  const [currentLetterIndex, setCurrentLetterIndex] = useState(-1);
 
   useEffect(() => {
-    // Simulate loading time for assets
-    const timer = setTimeout(() => {
-      setFadeOut(true);
-      setTimeout(() => {
-        onLoad();
-      }, 500); // Wait for fade out animation
-    }, 1500); // Show loader for 1.5 seconds
+    // Start logo animation - pulsing and rotating
+    setAnimationState('pulsing-rotating');
 
-    return () => clearTimeout(timer);
+    // After 2 seconds, start the transition
+    const pulseTimer = setTimeout(() => {
+      setAnimationState('centering');
+    }, 2000);
+
+    // Show letters one by one
+    const showLetters = () => {
+      let index = 0;
+      const interval = setInterval(() => {
+        if (index < 7) {
+          setCurrentLetterIndex(index);
+          index++;
+        } else {
+          clearInterval(interval);
+          setShowText(true);
+        }
+      }, 150); // Show a new letter every 150ms
+
+      return () => clearInterval(interval);
+    };
+
+    // Start showing letters after 2.2 seconds
+    const lettersTimer = setTimeout(showLetters, 2200);
+
+    // After 3.5 seconds, show the tagline
+    const taglineTimer = setTimeout(() => {
+      setShowTagline(true);
+    }, 3500);
+
+    // After 4.5 seconds, complete loading
+    const completeTimer = setTimeout(() => {
+      setAnimationState('complete');
+      if (onLoad) {
+        setTimeout(onLoad, 500); // Wait for exit animation
+      }
+    }, 4500);
+
+    return () => {
+      clearTimeout(pulseTimer);
+      clearTimeout(lettersTimer);
+      clearTimeout(taglineTimer);
+      clearTimeout(completeTimer);
+    };
   }, [onLoad]);
 
+  // Array of letters for the word TARA
+  const letters = ['T', 'A', 'R', 'A'];
+
   return (
-    <div className={`loading-screen ${fadeOut ? 'fade-out' : ''}`}>
-      <div className="loading-content">
-        <img 
-          src="https://i.postimg.cc/ryYyJHWN/Gemini-Generated-Image-ufbvqsufbvqsufbv-removebg-preview.png" 
-          alt="TARA FURNITURE HOUSE" 
-          className="loading-logo"
-        />
-        <div className="loading-spinner"></div>
+    <div className={`loader-container ${animationState === 'complete' ? 'fade-out' : ''}`}>
+      {/* Background decoration */}
+      <div className="loader-background">
+        <span>FURNITURE HOUSE</span>
+        <span>TARA FURNITURE</span>
+        <span>TARA FURNITURE HOUSE</span>
+      </div>
+      
+      {/* Floating furniture icons */}
+      <div className="furniture-icon">🛏️</div>
+      <div className="furniture-icon">🪑</div>
+      <div className="furniture-icon">🛋️</div>
+      <div className="furniture-icon">🗄️</div>
+      <div className="furniture-icon">🪞</div>
+      <div className="furniture-icon">💡</div>
+
+      <div className="loader-content">
+        {/* Logo with enhanced animations */}
+        <div className={`logo-wrapper ${animationState}`}>
+          <img 
+            src="https://i.postimg.cc/ryYyJHWN/Gemini-Generated-Image-ufbvqsufbvqsufbv-removebg-preview.png" 
+            alt="TARA FURNITURE HOUSE" 
+            className="loader-logo"
+          />
+          <div className="logo-ring"></div>
+          <div className="logo-ring-outer"></div>
+        </div>
+        
+        {/* Text container with sequential letter reveal */}
+        <div className={`text-container ${showText ? 'visible' : ''}`}>
+          {letters.map((letter, index) => (
+            <span 
+              key={index} 
+              className={`letter ${currentLetterIndex >= index ? 'revealed' : ''}`}
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
+              {letter}
+            </span>
+          ))}
+          <span className={`letter ${currentLetterIndex >= 4 ? 'revealed' : ''}`} style={{ animationDelay: '0.4s' }}> </span>
+          <span className={`letter ${currentLetterIndex >= 5 ? 'revealed' : ''}`} style={{ animationDelay: '0.5s' }}>FURNITURE</span>
+          <span className={`letter ${currentLetterIndex >= 6 ? 'revealed' : ''}`} style={{ animationDelay: '0.6s' }}>HOUSE</span>
+        </div>
+
+        {/* Tagline with slide-up animation */}
+        <div className={`tagline-container ${showTagline ? 'visible' : ''}`}>
+          <span className="tagline">Premium Furniture</span>
+        </div>
+
+        {/* Loading bar with enhanced animation */}
+        <div className={`loading-bar-container ${showTagline ? 'visible' : ''}`}>
+          <div className="loading-bar">
+            <div className="loading-bar-progress"></div>
+          </div>
+        </div>
       </div>
     </div>
   );
