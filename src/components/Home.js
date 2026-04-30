@@ -233,47 +233,52 @@ const Home = () => {
       </section>
 
       {/* Featured Products Section */}
-      <section className="featured-products">
-        <div className="section-header">
-          <h2>FEATURED COLLECTION</h2>
-          <p>Discover our handcrafted premium furniture pieces</p>
+<section className="featured-products">
+  <div className="section-header">
+    <h2>FEATURED COLLECTION</h2>
+    <p>Discover our handcrafted premium furniture pieces</p>
+  </div>
+  <div className="products-grid">
+    {featuredProducts.map(product => (
+      <div key={product.id} className="product-card">
+        <div className="product-image">
+          {product.images && product.images[0] && (
+            <img src={product.images[0]} alt={product.name} loading="lazy" />
+          )}
         </div>
-        <div className="products-grid">
-          {featuredProducts.map(product => (
-            <div key={product.id} className="product-card">
-              <div className="product-image">
-                {product.images && product.images[0] && (
-                  <img src={product.images[0]} alt={product.name} loading="lazy" />
-                )}
-              </div>
-              <div className="product-info">
-                <span className="product-category">
-                  {getCategoryIcon(product.category)} {getCategoryName(product.category)}
-                </span>
-                <h3 className="product-name">{product.name}</h3>
-                <div className="product-price">₹{product.price.toLocaleString()}</div>
-                <p className="product-description">
-                  {product.description && product.description.length > 100 
-                    ? `${product.description.substring(0, 100)}...` 
-                    : product.description}
-                </p>
-                <div className="product-features">
-                  <span>✓ Free Delivery</span>
-                  <span>✓ 5 Year Warranty</span>
-                </div>
-                <Link to="/products" className="btn-view-product">
-                  View Details →
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="view-all-container">
-          <Link to="/products" className="btn-view-all">
-            View All Products →
+        <div className="product-info">
+          <span className="product-category">
+            {getCategoryIcon(product.category)} {getCategoryName(product.category)}
+          </span>
+          <h3 className="product-name">{product.name}</h3>
+          
+          {/* Make sure price is visible */}
+          <div className="product-price">₹{product.price?.toLocaleString() || '0'}</div>
+          
+          {/* Make sure description is visible */}
+          <p className="product-description">
+            {product.description && product.description.length > 100 
+              ? `${product.description.substring(0, 100)}...` 
+              : product.description || 'No description available'}
+          </p>
+          
+          <div className="product-features">
+            <span>✓ Free Delivery</span>
+            <span>✓ 5 Year Warranty</span>
+          </div>
+          <Link to={`/products`} className="btn-view-product">
+            View Details →
           </Link>
         </div>
-      </section>
+      </div>
+    ))}
+  </div>
+  <div className="view-all-container">
+    <Link to="/products" className="btn-view-all">
+      View All Products →
+    </Link>
+  </div>
+</section>
 
       {/* Stats Section */}
       <section className="stats-section">

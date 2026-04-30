@@ -50,7 +50,6 @@ function LoadingScreen({ onLoad }) {
           className="loading-logo"
         />
         <div className="loading-spinner"></div>
-        <p className="loading-text">Crafting Dreams, Building Trust...</p>
       </div>
     </div>
   );

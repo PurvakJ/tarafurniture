@@ -108,7 +108,7 @@ html {
 /* Responsive styles for loader */
 @media (max-width: 768px) {
   .loading-logo {
-    width: 150px;
+    width: 400px;
   }
   
   .loading-spinner {
@@ -123,7 +123,7 @@ html {
 
 @media (max-width: 480px) {
   .loading-logo {
-    width: 120px;
+    width: 300px;
   }
   
   .loading-spinner {

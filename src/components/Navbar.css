@@ -597,3 +597,62 @@
   background: var(--accent-color);
   border-radius: 2px;
 }
+
+/* Add this to your existing CSS - this fixes the gap issue */
+
+/* Fix for mobile view - remove any default body margin/padding that might cause gap */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure navbar is properly positioned at the very top */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background-color: transparent;
+  transition: var(--transition-smooth);
+  z-index: 1000;
+  margin: 0; /* Add this */
+  padding: 0; /* Add this */
+}
+
+/* Remove any extra spacing from nav container on mobile */
+@media (max-width: 768px) {
+  .nav-container {
+    padding: 1rem 1.5rem;
+    position: relative;
+    margin: 0; /* Add this */
+    width: 100%; /* Add this */
+    box-sizing: border-box; /* Add this */
+  }
+  
+  /* Ensure the mobile menu doesn't create extra space below */
+  .nav-links.mobile-open {
+    margin-top: 0; /* Change from 1rem to 0 */
+    top: 100%;
+  }
+}
+
+/* For very small screens */
+@media (max-width: 480px) {
+  .nav-container {
+    padding: 0.8rem 1rem;
+  }
+}
+
+/* Optional: Add a wrapper div in your main App.js or layout component to account for fixed navbar */
+/* Add this class to the element right after your navbar in the main layout */
+.main-content {
+  padding-top: 80px; /* Adjust based on your navbar height */
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding-top: 65px; /* Smaller padding for mobile */
+  }
+}
+
