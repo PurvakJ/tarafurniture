@@ -95,31 +95,97 @@ const Home = () => {
     "5 YEAR WARRANTY"
   ];
 
-  // Function to get top 3 reviews
-  const getTopReviews = (allReviews) => {
-    const featured = allReviews.filter(review => review.featured === true);
-    const nonFeatured = allReviews.filter(review => review.featured !== true);
-    featured.sort((a, b) => b.rating - a.rating);
-    nonFeatured.sort((a, b) => b.rating - a.rating);
-    const sortedReviews = [...featured, ...nonFeatured];
-    return sortedReviews.slice(0, 3);
-  };
+// Replace the function definitions with useCallback versions:
 
-  // Load products and reviews
-  const loadData = useCallback(async () => {
-    try {
-      const products = await getProducts();
-      // Get featured products (up to 4)
-      const featured = products.filter(p => p.featured === true).slice(0, 3);
-      setFeaturedProducts(featured);
-      
-      const allReviews = await getReviews();
-      const topThreeReviews = getTopReviews(allReviews);
-      setReviews(topThreeReviews);
-    } catch (error) {
-      console.error('Error loading data:', error);
+// Function to get random items from array
+const getRandomItems = useCallback((array, count) => {
+  if (!array || array.length === 0) return [];
+  
+  // Shuffle array using Fisher-Yates algorithm
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  
+  // Return first 'count' items
+  return shuffled.slice(0, Math.min(count, shuffled.length));
+}, []);
+
+// Function to get random featured products
+const getRandomFeaturedProducts = useCallback((allProducts) => {
+  if (!allProducts || allProducts.length === 0) return [];
+  
+  // First, try to get products marked as featured
+  const featuredMarked = allProducts.filter(p => p.featured === true);
+  
+  if (featuredMarked.length >= 3) {
+    // If we have at least 3 featured products, pick random ones from them
+    return getRandomItems(featuredMarked, 3);
+  } else {
+    // If less than 3 featured products, take all featured ones and fill with random products
+    const otherProducts = allProducts.filter(p => p.featured !== true);
+    const combined = [...featuredMarked, ...otherProducts];
+    return getRandomItems(combined, 3);
+  }
+}, [getRandomItems]);
+
+// Function to get random top reviews
+const getRandomReviews = useCallback((allReviews) => {
+  if (!allReviews || allReviews.length === 0) return [];
+  
+  // Create a weighted pool for better chance of high-rated and featured reviews
+  const weightedPool = [];
+  
+  allReviews.forEach(review => {
+    // Add weight based on rating (1-5 stars) and featured status
+    let weight = review.rating;
+    if (review.featured) weight += 3; // Featured reviews get bonus weight
+    
+    // Add the review to the pool multiple times based on weight
+    for (let i = 0; i < weight; i++) {
+      weightedPool.push(review);
     }
-  }, []);
+  });
+  
+  // Get unique random reviews (no duplicates)
+  const uniqueReviews = [];
+  const shuffledPool = [...weightedPool];
+  
+  // Fisher-Yates shuffle
+  for (let i = shuffledPool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledPool[i], shuffledPool[j]] = [shuffledPool[j], shuffledPool[i]];
+  }
+  
+  // Get unique reviews
+  for (const review of shuffledPool) {
+    if (uniqueReviews.length >= 3) break;
+    if (!uniqueReviews.some(r => r.id === review.id)) {
+      uniqueReviews.push(review);
+    }
+  }
+  
+  return uniqueReviews.slice(0, 3);
+}, []);
+
+// Then update loadData's dependencies:
+const loadData = useCallback(async () => {
+  try {
+    const products = await getProducts();
+    const randomFeatured = getRandomFeaturedProducts(products);
+    setFeaturedProducts(randomFeatured);
+    
+    const allReviews = await getReviews();
+    const randomReviews = getRandomReviews(allReviews);
+    setReviews(randomReviews);
+    
+    console.log('Random Featured Products:', randomFeatured.map(p => p.name));
+    console.log('Random Reviews:', randomReviews.map(r => r.name));
+  } catch (error) {
+    console.error('Error loading data:', error);
+  }
+}, [getRandomFeaturedProducts, getRandomReviews]);
 
   useEffect(() => {
     loadData();
@@ -142,6 +208,7 @@ const Home = () => {
         setReviewSuccess(false);
         setShowReviewForm(false);
       }, 3000);
+      // Reload data with new random selection
       loadData();
     } catch (error) {
       console.error('Error submitting review:', error);
@@ -233,52 +300,56 @@ const Home = () => {
       </section>
 
       {/* Featured Products Section */}
-<section className="featured-products">
-  <div className="section-header">
-    <h2>FEATURED COLLECTION</h2>
-    <p>Discover our handcrafted premium furniture pieces</p>
-  </div>
-  <div className="products-grid">
-    {featuredProducts.map(product => (
-      <div key={product.id} className="product-card">
-        <div className="product-image">
-          {product.images && product.images[0] && (
-            <img src={product.images[0]} alt={product.name} loading="lazy" />
+      <section className="featured-products">
+        <div className="section-header">
+          <h2>FEATURED COLLECTION</h2>
+          <p>Discover our handcrafted premium furniture pieces</p>
+        </div>
+        <div className="products-grid">
+          {featuredProducts.length > 0 ? (
+            featuredProducts.map(product => (
+              <div key={product.id} className="product-card">
+                <div className="product-image">
+                  {product.images && product.images[0] && (
+                    <img src={product.images[0]} alt={product.name} loading="lazy" />
+                  )}
+                </div>
+                <div className="product-info">
+                  <span className="product-category">
+                    {getCategoryIcon(product.category)} {getCategoryName(product.category)}
+                  </span>
+                  <h3 className="product-name">{product.name}</h3>
+                  
+                  <div className="product-price">₹{product.price?.toLocaleString() || '0'}</div>
+                  
+                  <p className="product-description">
+                    {product.description && product.description.length > 100 
+                      ? `${product.description.substring(0, 100)}...` 
+                      : product.description || 'No description available'}
+                  </p>
+                  
+                  <div className="product-features">
+                    <span>✓ Free Delivery</span>
+                    <span>✓ 5 Year Warranty</span>
+                  </div>
+                  <Link to={`/products`} className="btn-view-product">
+                    View Details →
+                  </Link>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="no-products" style={{ textAlign: 'center', padding: '50px' }}>
+              <p>Loading featured products...</p>
+            </div>
           )}
         </div>
-        <div className="product-info">
-          <span className="product-category">
-            {getCategoryIcon(product.category)} {getCategoryName(product.category)}
-          </span>
-          <h3 className="product-name">{product.name}</h3>
-          
-          {/* Make sure price is visible */}
-          <div className="product-price">₹{product.price?.toLocaleString() || '0'}</div>
-          
-          {/* Make sure description is visible */}
-          <p className="product-description">
-            {product.description && product.description.length > 100 
-              ? `${product.description.substring(0, 100)}...` 
-              : product.description || 'No description available'}
-          </p>
-          
-          <div className="product-features">
-            <span>✓ Free Delivery</span>
-            <span>✓ 5 Year Warranty</span>
-          </div>
-          <Link to={`/products`} className="btn-view-product">
-            View Details →
+        <div className="view-all-container">
+          <Link to="/products" className="btn-view-all">
+            View All Products →
           </Link>
         </div>
-      </div>
-    ))}
-  </div>
-  <div className="view-all-container">
-    <Link to="/products" className="btn-view-all">
-      View All Products →
-    </Link>
-  </div>
-</section>
+      </section>
 
       {/* Stats Section */}
       <section className="stats-section">
@@ -450,6 +521,7 @@ const Home = () => {
         </div>
         
         <div className="view-all-reviews">
+
           <Link to="/reviews" className="btn-view-all">
             View All Reviews →
           </Link>

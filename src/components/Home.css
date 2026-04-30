@@ -1493,3 +1493,52 @@
 .product-card * {
   visibility: visible !important;
 }
+
+/* Center the loading text for featured products */
+.no-products {
+  text-align: center;
+  padding: 50px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+/* Alternative: if you want to specifically target the loading message */
+.products-grid .no-products {
+  grid-column: 1 / -1; /* Makes it span across all columns */
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 1.1rem;
+  color: #666;
+  background: #f9f9f9;
+  border-radius: 10px;
+  margin: 20px 0;
+}
+
+/* Ensure the products-grid properly handles the no-products div */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+  width: 100%;
+}
+
+/* Spinner animation for better UX (optional) */
+.no-products p::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #e67e22;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
