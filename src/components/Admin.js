@@ -17,13 +17,16 @@ function Admin() {
   const [reviews, setReviews] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({});
   const [categories, setCategories] = useState([
     'living-room',
     'bedroom', 
     'dining',
     'office',
     'storage',
-    'decor'
+    'decor',
+    'electronics'
   ]);
   const [newCategory, setNewCategory] = useState('');
   const [showCategoryInput, setShowCategoryInput] = useState(false);
@@ -35,9 +38,14 @@ function Admin() {
     featured: false,
     images: []
   });
-  const [imageUrlInput, setImageUrlInput] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [tempImagePreviews, setTempImagePreviews] = useState([]);
 
-  // Admin credentials (in production, move to backend)
+  // Cloudinary configuration
+  const CLOUDINARY_CLOUD_NAME = "dm9gg8yss";
+  const CLOUDINARY_UPLOAD_PRESET = "images";
+
+  // Admin credentials for Royal Furniture & Electronics
   const ADMIN_CREDENTIALS = {
     username: 'admin',
     password: 'Tara@2024'
@@ -58,29 +66,26 @@ function Admin() {
       }
     } catch (error) {
       console.error('Error loading data:', error);
-      // If unauthorized, logout
       if (error.response && error.response.status === 401) {
         handleLogout();
       }
     }
-  }, [activeTab]); // Only recreate when activeTab changes
+  }, [activeTab]);
 
   // Check for existing auth on component mount
   useEffect(() => {
-    const savedAuth = localStorage.getItem('adminAuth');
-    const authTime = localStorage.getItem('adminAuthTime');
+    const savedAuth = localStorage.getItem('royalAdminAuth');
+    const authTime = localStorage.getItem('royalAdminAuthTime');
     
-    // Check if auth exists and is not expired (optional: add 24 hour expiry)
     if (savedAuth === 'true' && authTime) {
       const now = new Date().getTime();
-      const expiryTime = parseInt(authTime) + (24 * 60 * 60 * 1000); // 24 hours
+      const expiryTime = parseInt(authTime) + (24 * 60 * 60 * 1000);
       
       if (now < expiryTime) {
         setIsAuthenticated(true);
       } else {
-        // Auth expired, clear it
-        localStorage.removeItem('adminAuth');
-        localStorage.removeItem('adminAuthTime');
+        localStorage.removeItem('royalAdminAuth');
+        localStorage.removeItem('royalAdminAuthTime');
         setIsAuthenticated(false);
       }
     } else {
@@ -103,26 +108,20 @@ function Admin() {
         loginData.password === ADMIN_CREDENTIALS.password) {
       setIsAuthenticated(true);
       setLoginError('');
-      // Store auth with timestamp
-      localStorage.setItem('adminAuth', 'true');
-      localStorage.setItem('adminAuthTime', new Date().getTime().toString());
-      // Reset login form
+      localStorage.setItem('royalAdminAuth', 'true');
+      localStorage.setItem('royalAdminAuthTime', new Date().getTime().toString());
       setLoginData({ username: '', password: '' });
     } else {
       setLoginError('Invalid username or password');
-      // Clear password field on error
       setLoginData({ ...loginData, password: '' });
     }
   };
 
   const handleLogout = () => {
-    // Clear all auth-related data
-    localStorage.removeItem('adminAuth');
-    localStorage.removeItem('adminAuthTime');
-    // Clear any other stored data
-    localStorage.removeItem('adminSession');
+    localStorage.removeItem('royalAdminAuth');
+    localStorage.removeItem('royalAdminAuthTime');
+    localStorage.removeItem('royalAdminSession');
     
-    // Reset all state
     setIsAuthenticated(false);
     setActiveTab('products');
     setProducts([]);
@@ -131,8 +130,85 @@ function Admin() {
     setShowModal(false);
     setEditingItem(null);
     
-    // Force a hard reload to reset all component state
     window.location.reload();
+  };
+
+  const uploadImageToCloudinary = async (file) => {
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+    try {
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+        method: "POST",
+        body: data,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed with status ${response.status}`);
+      }
+
+      const result = await response.json();
+      return result.secure_url;
+    } catch (error) {
+      console.error("Error uploading to Cloudinary:", error);
+      throw error;
+    }
+  };
+
+  const handleImageSelection = (e) => {
+    const files = Array.from(e.target.files);
+    
+    // Validate file types and sizes
+    const validFiles = files.filter(file => {
+      const isValidType = file.type.startsWith('image/');
+      const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB limit
+      if (!isValidType) alert(`${file.name} is not an image file`);
+      if (!isValidSize) alert(`${file.name} is too large (max 5MB)`);
+      return isValidType && isValidSize;
+    });
+
+    if (validFiles.length > 0) {
+      setSelectedFiles([...selectedFiles, ...validFiles]);
+      
+      // Create preview URLs
+      const newPreviews = validFiles.map(file => URL.createObjectURL(file));
+      setTempImagePreviews([...tempImagePreviews, ...newPreviews]);
+    }
+  };
+
+  const removeSelectedImage = (index) => {
+    // Revoke the object URL to avoid memory leaks
+    URL.revokeObjectURL(tempImagePreviews[index]);
+    
+    const newSelectedFiles = selectedFiles.filter((_, i) => i !== index);
+    const newPreviews = tempImagePreviews.filter((_, i) => i !== index);
+    
+    setSelectedFiles(newSelectedFiles);
+    setTempImagePreviews(newPreviews);
+  };
+
+  const uploadAllImages = async () => {
+    if (selectedFiles.length === 0) return [];
+    
+    setUploadingImages(true);
+    const uploadedUrls = [];
+    
+    for (let i = 0; i < selectedFiles.length; i++) {
+      try {
+        setUploadProgress(prev => ({ ...prev, [i]: 'uploading' }));
+        const url = await uploadImageToCloudinary(selectedFiles[i]);
+        uploadedUrls.push(url);
+        setUploadProgress(prev => ({ ...prev, [i]: 'completed' }));
+      } catch (error) {
+        console.error(`Failed to upload image ${i + 1}:`, error);
+        setUploadProgress(prev => ({ ...prev, [i]: 'failed' }));
+        alert(`Failed to upload image ${i + 1}. Please try again.`);
+      }
+    }
+    
+    setUploadingImages(false);
+    return uploadedUrls;
   };
 
   const addNewCategory = () => {
@@ -154,7 +230,8 @@ function Admin() {
       'dining': 'Dining',
       'office': 'Office',
       'storage': 'Storage',
-      'decor': 'Decor'
+      'decor': 'Decor',
+      'electronics': 'Electronics'
     };
     return displayNames[categoryValue] || categoryValue.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
@@ -166,44 +243,45 @@ function Admin() {
       'dining': '🍽️',
       'office': '💼',
       'storage': '📦',
-      'decor': '🎨'
+      'decor': '🎨',
+      'electronics': '📺'
     };
     return icons[category] || '🪑';
-  };
-
-  const addImageUrl = () => {
-    if (imageUrlInput && imageUrlInput.trim()) {
-      if (imageUrlInput.startsWith('http://') || imageUrlInput.startsWith('https://')) {
-        setFormData({ 
-          ...formData, 
-          images: [...formData.images, imageUrlInput.trim()] 
-        });
-        setImageUrlInput('');
-      } else {
-        alert('Please enter a valid image URL starting with http:// or https://');
-      }
-    }
-  };
-
-  const removeImage = (index) => {
-    const newImages = formData.images.filter((_, i) => i !== index);
-    setFormData({ ...formData, images: newImages });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (formData.images.length === 0) {
-      alert('Please add at least one product image URL');
+    // Upload new images to Cloudinary if any
+    let allImages = [...formData.images];
+    
+    if (selectedFiles.length > 0) {
+      const uploadedUrls = await uploadAllImages();
+      allImages = [...allImages, ...uploadedUrls];
+      
+      if (uploadedUrls.length !== selectedFiles.length) {
+        alert('Some images failed to upload. Please try again.');
+        return;
+      }
+    }
+    
+    if (allImages.length === 0) {
+      alert('Please add at least one product image');
       return;
     }
 
+    const productData = {
+      ...formData,
+      price: parseFloat(formData.price),
+      images: allImages
+    };
+
     try {
       if (editingItem) {
-        await updateProduct({ ...formData, id: editingItem.id });
+        await updateProduct({ ...productData, id: editingItem.id });
         alert('Product updated successfully!');
       } else {
-        await addProduct(formData);
+        await addProduct(productData);
         alert('Product added successfully!');
       }
       setShowModal(false);
@@ -261,6 +339,9 @@ function Admin() {
   };
 
   const resetForm = () => {
+    // Clean up preview URLs
+    tempImagePreviews.forEach(preview => URL.revokeObjectURL(preview));
+    
     setFormData({
       name: '',
       description: '',
@@ -269,7 +350,9 @@ function Admin() {
       featured: false,
       images: []
     });
-    setImageUrlInput('');
+    setSelectedFiles([]);
+    setTempImagePreviews([]);
+    setUploadProgress({});
     setEditingItem(null);
   };
 
@@ -283,18 +366,24 @@ function Admin() {
       featured: product.featured,
       images: product.images || []
     });
-    setImageUrlInput('');
+    setSelectedFiles([]);
+    setTempImagePreviews([]);
+    setUploadProgress({});
     setShowModal(true);
   };
 
-  // Show loading state
+  const removeExistingImage = (indexToRemove) => {
+    const newImages = formData.images.filter((_, index) => index !== indexToRemove);
+    setFormData({ ...formData, images: newImages });
+  };
+
   if (isLoading) {
     return (
       <div className="admin-login-container">
         <div className="admin-login-box">
           <div className="login-header">
-            <div className="login-icon">🛋️</div>
-            <h1>TARA FURNITURE HOUSE</h1>
+            <div className="login-icon">👑</div>
+            <h1>ROYAL FURNITURE & ELECTRONICS</h1>
             <p>Loading...</p>
           </div>
         </div>
@@ -302,13 +391,11 @@ function Admin() {
     );
   }
 
-  // Show login screen if not authenticated
   if (!isAuthenticated) {
     return (
       <div className="admin-login-container">
         <div className="admin-login-box">
           <div className="login-header">
-            <div className="login-icon">🛋️</div>
             <h1>TARA FURNITURE HOUSE</h1>
             <p>Admin Dashboard Login</p>
           </div>
@@ -337,24 +424,26 @@ function Admin() {
             {loginError && <div className="login-error">{loginError}</div>}
             <button type="submit" className="login-btn">Login to Dashboard</button>
           </form>
+
         </div>
       </div>
     );
   }
 
-  // Show admin dashboard if authenticated
   return (
     <div className="admin-container">
       <div className="admin-header">
         <div className="admin-header-content">
           <div className="admin-title">
-            <span className="admin-icon">🛋️</span>
+            <span className="admin-icon">👑</span>
             <h1>Admin Dashboard</h1>
             <span className="admin-badge">TARA FURNITURE HOUSE</span>
           </div>
-          <button onClick={handleLogout} className="logout-btn">
-            Logout
-          </button>
+          <div className="admin-contact-info">
+            <button onClick={handleLogout} className="logout-btn">
+              Logout
+            </button>
+          </div>
         </div>
       </div>
       
@@ -541,7 +630,6 @@ function Admin() {
         </div>
       )}
 
-      {/* Product Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content product-modal" onClick={(e) => e.stopPropagation()}>
@@ -558,7 +646,7 @@ function Admin() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
-                  placeholder="e.g., Premium Leather Sofa"
+                  placeholder="e.g., Royal Premium Sofa"
                 />
               </div>
               
@@ -640,35 +728,19 @@ function Admin() {
               </div>
               
               <div className="form-group">
-                <label>Product Images (URLs) *</label>
-                <div className="image-url-input-section">
-                  <div className="url-input-group">
-                    <input
-                      type="text"
-                      value={imageUrlInput}
-                      onChange={(e) => setImageUrlInput(e.target.value)}
-                      placeholder="Enter image URL (e.g., https://example.com/image.jpg)"
-                      className="url-input"
-                    />
-                    <button type="button" onClick={addImageUrl} className="btn-add-url">
-                      + Add Image
-                    </button>
-                  </div>
-                  <p className="helper-text">
-                    💡 Tip: Use image URLs from reliable image hosting services
-                  </p>
-                </div>
+                <label>Product Images *</label>
                 
-                {formData.images.length > 0 && (
-                  <div className="image-urls-list">
-                    <label>Added Images ({formData.images.length}):</label>
+                {/* Existing Images Display for Edit Mode */}
+                {editingItem && formData.images.length > 0 && (
+                  <div className="existing-images-section">
+                    <label>Current Images:</label>
                     <div className="image-grid">
                       {formData.images.map((imgUrl, index) => (
                         <div key={index} className="image-url-item">
                           <div className="image-preview-container">
                             <img 
                               src={imgUrl} 
-                              alt={`Preview ${index + 1}`} 
+                              alt={`Product ${index + 1}`} 
                               className="image-preview-thumb"
                               onError={(e) => {
                                 e.target.src = 'https://via.placeholder.com/100x100?text=Invalid+URL';
@@ -677,33 +749,100 @@ function Admin() {
                             <button 
                               type="button" 
                               className="remove-image-btn"
-                              onClick={() => removeImage(index)}
+                              onClick={() => removeExistingImage(index)}
                             >
                               ✕
                             </button>
-                          </div>
-                          <div className="image-url-text">
-                            <span className="url-label">URL {index + 1}:</span>
-                            <input 
-                              type="text" 
-                              value={imgUrl} 
-                              readOnly 
-                              className="url-readonly"
-                              onClick={(e) => e.target.select()}
-                            />
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
+                
+                {/* Upload New Images Section */}
+                <div className="image-upload-section">
+                  <label>Upload New Images:</label>
+                  <div className="file-input-wrapper">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageSelection}
+                      className="file-input"
+                      id="image-upload"
+                      disabled={uploadingImages}
+                    />
+                    <label htmlFor="image-upload" className="file-input-label">
+                      📁 Choose Images
+                    </label>
+                    <p className="helper-text">
+                      Supported formats: JPG, PNG, GIF, WebP (Max 5MB each)
+                    </p>
+                  </div>
+                  
+                  {/* Image Preview for Upload */}
+                  {tempImagePreviews.length > 0 && (
+                    <div className="image-urls-list">
+                      <label>Images to Upload ({tempImagePreviews.length}):</label>
+                      <div className="image-grid">
+                        {tempImagePreviews.map((preview, index) => (
+                          <div key={index} className="image-url-item">
+                            <div className="image-preview-container">
+                              <img 
+                                src={preview} 
+                                alt={`Preview ${index + 1}`} 
+                                className="image-preview-thumb"
+                              />
+                              <button 
+                                type="button" 
+                                className="remove-image-btn"
+                                onClick={() => removeSelectedImage(index)}
+                                disabled={uploadingImages}
+                              >
+                                ✕
+                              </button>
+                              {uploadProgress[index] === 'uploading' && (
+                                <div className="upload-progress-overlay">
+                                  <div className="spinner"></div>
+                                </div>
+                              )}
+                              {uploadProgress[index] === 'completed' && (
+                                <div className="upload-success-overlay">✓</div>
+                              )}
+                              {uploadProgress[index] === 'failed' && (
+                                <div className="upload-failed-overlay">✗</div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {uploadingImages && (
+                  <div className="uploading-indicator">
+                    <div className="spinner"></div>
+                    <p>Uploading images to Cloudinary...</p>
+                  </div>
+                )}
               </div>
               
               <div className="modal-actions">
-                <button type="submit" className="btn-submit-product">
-                  {editingItem ? 'Update Product' : 'Add Product'}
+                <button 
+                  type="submit" 
+                  className="btn-submit-product"
+                  disabled={uploadingImages}
+                >
+                  {uploadingImages ? 'Uploading Images...' : (editingItem ? 'Update Product' : 'Add Product')}
                 </button>
-                <button type="button" className="btn-cancel-modal" onClick={() => setShowModal(false)}>
+                <button 
+                  type="button" 
+                  className="btn-cancel-modal" 
+                  onClick={() => setShowModal(false)}
+                  disabled={uploadingImages}
+                >
                   Cancel
                 </button>
               </div>
